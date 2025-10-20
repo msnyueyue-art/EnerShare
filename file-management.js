@@ -5,6 +5,7 @@ const mockData = {
             id: 1,
             name: 'BMS_V2.3.5_升级包',
             type: '升级包',
+            versionNumber: 'V2.3.5',
             language: 'all', // BMS 升级包不区分语言
             format: 'ZIP',
             uploadDate: '2025-10-15 14:23:45',
@@ -16,6 +17,7 @@ const mockData = {
             id: 2,
             name: 'BMS_V2.3.4_升级包',
             type: '升级包',
+            versionNumber: 'V2.3.4',
             language: 'all',
             format: 'RAR',
             uploadDate: '2025-10-10 09:15:30',
@@ -27,6 +29,7 @@ const mockData = {
             id: 3,
             name: 'BMS_V2.3.3_升级包',
             type: '升级包',
+            versionNumber: 'V2.3.3',
             language: 'all',
             format: 'ZIP',
             uploadDate: '2025-10-05 16:42:18',
@@ -126,6 +129,7 @@ const i18n = {
 
         // 表格表头
         fileName: '文件名称',
+        versionNumber: '版本号',
         fileType: '文件类型',
         language: '语言',
         fileFormat: '文件格式',
@@ -199,6 +203,7 @@ const i18n = {
 
         // Table headers
         fileName: 'File Name',
+        versionNumber: 'Version',
         fileType: 'File Type',
         language: 'Language',
         fileFormat: 'Format',
@@ -315,8 +320,11 @@ function renderFileList() {
         const row = document.createElement('tr');
         // BMS 升级包不显示语言,显示 "--"
         const languageDisplay = currentTab === 'bms' ? '--' : file.languageDisplay;
+        // 版本号显示：BMS升级包显示版本号，文档资料显示 "--"
+        const versionDisplay = currentTab === 'bms' ? (file.versionNumber || '--') : '--';
         row.innerHTML = `
             <td><span class="file-name">${file.name}</span></td>
+            <td>${versionDisplay}</td>
             <td>${file.type}</td>
             <td><span class="language-badge">${languageDisplay}</span></td>
             <td>${file.format}</td>
@@ -398,9 +406,17 @@ function hideModal(modal) {
 function updateFileTypeOptions(category) {
     const fileTypeSelect = document.getElementById('fileType');
     const allOptions = fileTypeSelect.querySelectorAll('option');
+    const versionNumberGroup = document.getElementById('versionNumberGroup');
 
     // 重置选择
     fileTypeSelect.value = '';
+
+    // 控制版本号字段的显示/隐藏
+    if (category === 'bms') {
+        versionNumberGroup.style.display = 'block';
+    } else {
+        versionNumberGroup.style.display = 'none';
+    }
 
     // 根据分类显示/隐藏选项
     allOptions.forEach(option => {
@@ -576,6 +592,7 @@ function handleFormSubmit(e) {
         category: document.getElementById('fileCategory').value,
         name: document.getElementById('fileName').value,
         type: document.getElementById('fileType').value,
+        versionNumber: document.getElementById('versionNumber').value,
         versions: []
     };
 
@@ -634,6 +651,11 @@ function handleFormSubmit(e) {
             file.name = formData.name;
             file.type = getTypeDisplay(formData.type);
 
+            // 更新版本号（仅BMS升级包）
+            if (formData.category === 'bms') {
+                file.versionNumber = formData.versionNumber;
+            }
+
             // 如果上传了新文件,更新格式和语言
             if (formData.versions.length > 0) {
                 const version = formData.versions[0];
@@ -658,6 +680,11 @@ function handleFormSubmit(e) {
                 format: version.format,
                 uploadDate: currentDate
             };
+
+            // 添加版本号（仅BMS升级包）
+            if (formData.category === 'bms') {
+                newFile.versionNumber = formData.versionNumber;
+            }
 
             fileData[formData.category].unshift(newFile);
         });
@@ -705,6 +732,8 @@ function resetUploadModal() {
     editingFileId = null;
     document.querySelector('#uploadModal .modal-header h2').textContent = '上传文件';
     document.querySelector('#uploadForm button[type="submit"]').textContent = '确定上传';
+    // 清空版本号输入
+    document.getElementById('versionNumber').value = '';
 }
 
 // 重置语言版本区域
@@ -778,6 +807,11 @@ function handleEdit(id) {
     // 根据文件类型反向查找 value
     const fileType = getFileTypeValue(file.type);
     document.getElementById('fileType').value = fileType;
+
+    // 填充版本号（仅BMS升级包）
+    if (category === 'bms' && file.versionNumber) {
+        document.getElementById('versionNumber').value = file.versionNumber;
+    }
 
     // 更新文件类型选项
     updateFileTypeOptions(category);
@@ -887,6 +921,7 @@ function handleView(id) {
 
     // 填充基础信息
     document.getElementById('detailFileName').textContent = `${file.name}.${file.format.toLowerCase()}`;
+    document.getElementById('detailVersionNumber').textContent = (category === 'bms' && file.versionNumber) ? file.versionNumber : '--';
     document.getElementById('detailSystemType').textContent = i18n[currentLang].general;
     document.getElementById('detailFileFormat').textContent = `.${file.format}`;
     document.getElementById('detailFileSize').textContent = file.fileSize || 'N/A';

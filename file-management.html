@@ -98,6 +98,7 @@
                     <thead>
                         <tr>
                             <th data-i18n="fileName">文件名称</th>
+                            <th data-i18n="versionNumber">版本号</th>
                             <th data-i18n="fileType">文件类型</th>
                             <th data-i18n="language">语言</th>
                             <th data-i18n="fileFormat">文件格式</th>
@@ -163,6 +164,12 @@
                         <option value="terms">用户协议</option>
                         <option value="other">其他</option>
                     </select>
+                </div>
+
+                <!-- 版本号 -->
+                <div class="form-group" id="versionNumberGroup">
+                    <label for="versionNumber">版本号 <span class="required">*</span></label>
+                    <input type="text" id="versionNumber" placeholder="请输入版本号，例如：V2.3.5" required>
                 </div>
 
                 <!-- 多语言版本文件上传区 -->
@@ -259,6 +266,10 @@
                         <div class="info-item">
                             <span class="info-label" data-i18n="fileName">文件名称</span>
                             <span class="info-value" id="detailFileName">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label" data-i18n="versionNumber">版本号</span>
+                            <span class="info-value" id="detailVersionNumber">-</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label" data-i18n="systemType">系统类型</span>
